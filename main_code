@@ -56,10 +56,15 @@ def dispense_container():
        
     return container
 
-def load_container():
+def load_container(container):
     total_weight=0
     num_containers=0
-#hdsjskfsdf    
+    mass_bin= [[0,0],[9.25,3],[15,1],[10,2],[22.469,4],[26.649,1],[29.281,4]]
+
+    for num_containers in range(3):
+        total_weight += mass_bin[container, 0]
+
+   
 
 def main():
     dispense_container()
