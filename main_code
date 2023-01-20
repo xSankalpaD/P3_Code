@@ -49,27 +49,58 @@ else:
 #--------------------------------------------------------------------------------
 # STUDENT CODE BEGINS
 #---------------------------------------------------------------------------------
-
+container=0
 def dispense_container():
+    global container
     container= random.randint(1,6)
     table.dispense_container(container)
        
-    return container
+    return None
 
-def load_container(container):
+def load_container():
+    global container
+    p_container=0 #value for previous container
     total_weight=0
     num_containers=0
-    mass_bin= [[0,0],[9.25,3],[15,1],[10,2],[22.469,4],[26.649,1],[29.281,4]]
+    mass_binlist= [[0,0],[9.25,3],[15,1],[10,2],[22.469,4],[26.649,1],[29.281,4]]
 
-    for num_containers in range(3):
-        total_weight += mass_bin[container, 0]
+        
+    total_weight += mass_binlist[container][0]
+    if num_containers==0:
+        #then just load it at 1st spot
+        #and update p_container
+        arm.move_arm(0.64,0,0.27)
+        arm.control_gripper(45)
+        arm.move_arm(0,-0.376, 0.621)
+        arm.move_arm(0,-0.462,0.478)
+        
+        p_container=container
+        num_container+=1
+    elif num_containers==1:
+        if total_weight>90 or p_container!=container:
+            #stop the loading
+            print('fgf')
+        else:
+            #load it at spot 2
+            print('dfd')
+    elif num_containers==2:
+        if total_weight>90 or p_container!=container:
+            #stop the loading 
+            print('dsf')
+        else:   
+            #load at spot 3
+            print('dpop')
+    return None
 
-   
 
-def main():
-    dispense_container()
+        
+            
 
-main()
+
+        
+    
+            
+
     
 
 
