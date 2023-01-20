@@ -50,6 +50,7 @@ else:
 # STUDENT CODE BEGINS
 #---------------------------------------------------------------------------------
 container=0
+mass_binlist= [[0,0],[9.25,3],[15,1],[10,2],[22.469,4],[26.649,1],[29.281,4]]
 def dispense_container():
     global container
     container= random.randint(1,6)
@@ -59,55 +60,172 @@ def dispense_container():
 
 def load_container():
     global container
+    global mass_binlist
     p_container=0 #value for previous container
     total_weight=0
     num_containers=0
-    mass_binlist= [[0,0],[9.25,3],[15,1],[10,2],[22.469,4],[26.649,1],[29.281,4]]
+    counter=True
 
+    while counter==True: 
+        total_weight += mass_binlist[container][0]
+        if num_containers==0:
+            #then just load it at 1st spot
+            #and update p_container
+            time.sleep(2)
+            arm.move_arm(0.64,0,0.27)
+            time.sleep(2)
+            arm.control_gripper(45)
+            time.sleep(2)
+            arm.move_arm(0,-0.376, 0.621)
+            time.sleep(2)
+            arm.move_arm(0,-0.462,0.478)
+            time.sleep(2)
+            arm.control_gripper(-45)
+            time.sleep(2)
+            arm.move_arm(0,-0.376, 0.621)
+            time.sleep(2)
+            arm.home()
+
+            counter=False
+            p_container=container
+            num_containers+=1
+
+        elif num_containers==1:
+            if total_weight>90 or p_container!=container:
+                #stop the loading
+                print('fgf')
+                counter= False
+            else:
+                #load it at spot 2
+                print('dfd')
+        elif num_containers==2:
+            if total_weight>90 or p_container!=container:
+                #stop the loading 
+                print('dsf')
+                counter= False
+            else:   
+                #load at spot 3
+                print('dpop')
+    
+    return None
+
+#code to make the q-bot drive and stay on the track
+def drive_Qbot():
+
+    line_reading = bot.line_following_sensors()
+
+    if line_reading == [1, 1]:
+        bot.set_wheel_speed([0.1,0.1])
+
+    #if it is no longer on the track, it will turn back onto it
+    if line_reading == [1, 0]:
+        while line_reading == [1, 0]:
+            bot.set_wheel_speed([0,0.1])
+            line_reading = bot.line_following_sensors()
+
+        bot.set_wheel_speed([0.1,0.1])
+
+    if line_reading == [0, 1]:
+        while line_reading == [0, 1]:
+            bot.set_wheel_speed([0.1,0])
+            line_reading = bot.line_following_sensors()
+            
+        bot.set_wheel_speed([0.1,0.1])
+
+    return None
         
-    total_weight += mass_binlist[container][0]
-    if num_containers==0:
-        #then just load it at 1st spot
-        #and update p_container
-        arm.move_arm(0.64,0,0.27)
-        arm.control_gripper(45)
-        arm.move_arm(0,-0.376, 0.621)
-        arm.move_arm(0,-0.462,0.478)
-        
-        p_container=container
-        num_container+=1
-    elif num_containers==1:
-        if total_weight>90 or p_container!=container:
-            #stop the loading
-            print('fgf')
-        else:
-            #load it at spot 2
-            print('dfd')
-    elif num_containers==2:
-        if total_weight>90 or p_container!=container:
-            #stop the loading 
-            print('dsf')
-        else:   
-            #load at spot 3
-            print('dpop')
+def transfer_container():
+    global mass_binlist
+    global container
+    global bin1_color
+    global bin2_color
+    global bin3_color
+    global bin4_color
+
+    bin = mass_binlist[container][1]
+
+    #creates a variable that containes the colour values of the bin
+    if bin == 1:
+        colour_of_bin = bin1_color
+    elif bin == 2:
+        colour_of_bin = bin2_color
+    elif bin == 3:
+        colour_of_bin = bin3_color
+    else:
+        colour_of_bin = bin4_color
+    
+    #stores whether the bot has unloaded or not
+    colour_sensing = True
+    
+    bot.activate_color_sensor()
+    bot.activate_line_following_sensor()
+    
+    #this will run until the correct bin has been sensed
+    while colour_sensing:
+
+        drive_Qbot()
+
+        current_colour_reading = bot.read_color_sensor()
+
+        #when the colour sensor determines it has become in range of the bin
+        if current_colour_reading[0] == colour_of_bin:
+            bot.deactivate_color_sensor()
+            bot.activate_ultrasonic_sensor()
+            colour_sensing = False
+            ultrasonic_sensing = True
+
+    #this will run until recyclables are ready to be dumped
+    while ultrasonic_sensing:
+
+        drive_Qbot()
+
+        current_distance = bot.read_ultrasonic_sensor()
+
+        #when the bot has reached the dropoff point
+        if 0 < current_distance < 0.5:
+            bot.stop()
+            ultrasonic_sensing = False
+
+    bot.deactivate_line_following_sensor()
+    bot.deactivate_ultrasonic_sensor()
     return None
 
 
-        
-            
-
-
-        
     
-            
-
+def deposit_container():
+    time.sleep(1)
+    bot.activate_linear_actuator()
+    time.sleep(1)
+    bot.rotate_hopper(30)
     
+    return None
+
+def return_home():
+
+    bot.activate_line_following_sensor()
+
+    while bot.position() != (1.500001072883606, -1.095026709663216e-05, 0.0007550716400146484):
+
+        drive_Qbot()
+
+    bot.deactivate_line_following_sensor()
+
+    return None
+
+def main():
+
+    while True:
+        dispense_container()
+        load_container()
+        transfer_container()
+        deposit_container()
+        return_home()
+    return None
 
 
+main()
 
-
-
-
+#todaywas a sucess!!
 
 
 #---------------------------------------------------------------------------------
