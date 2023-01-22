@@ -11,20 +11,20 @@ drop_tube_angle = 180 # enter the value in degrees for the drop tube. clockwise 
 # Configuration for the colors for the bins and the lines leading to those bins.
 # Note: The line leading up to the bin will be the same color as the bin 
 
-bin1_offset = 0.45 # offset in meters
-bin1_color = [1,0,0] # e.g. [1,0,0] for red
+bin1_offset = 0.15 # offset in meters
+bin1_color = [1, 0, 0] # e.g. [1,0,0] for red
 bin1_metallic = False
 
-bin2_offset = 0.45
-bin2_color = [0,1,0]
+bin2_offset = 0.15
+bin2_color = [0, 1, 0]
 bin2_metallic = False
 
-bin3_offset = 0.30
-bin3_color = [0,0,1]
+bin3_offset = 0.15
+bin3_color = [0, 0, 1]
 bin3_metallic = False
 
-bin4_offset = 0.30
-bin4_color = [0,0,0]
+bin4_offset = 0.15
+bin4_color = [1, 0, 1]
 bin4_metallic = False
 #--------------------------------------------------------------------------------
 import sys
@@ -51,61 +51,129 @@ else:
 #---------------------------------------------------------------------------------
 container=0
 mass_binlist= [[0,0],[9.25,3],[15,1],[10,2],[22.469,4],[26.649,1],[29.281,4]]
+
 def dispense_container():
     global container
     container= random.randint(1,6)
-    table.dispense_container(container)
+    table.dispense_container(container, True)
        
     return None
+
+def bottle_load(spot_num):
+    time.sleep(3)
+    arm.move_arm(0.64,0,0.23) #pickup position
+    time.sleep(3)
+    arm.control_gripper(40)
+    time.sleep(3)
+    arm.move_arm(0.012,-0.376, 0.621) #spot before loading
+    time.sleep(3)
+    if spot_num==1:
+        arm.move_arm(0.012,-0.637,0.531) #1st load spot
+        time.sleep(3)
+    elif spot_num==2:
+        arm.move_arm(0.012,-0.521,0.498) #2nd load spot
+        time.sleep(3)
+    elif spot_num==3:
+        arm.move_arm(0.012,-0.462,0.478) #3rd load spot
+        time.sleep(3)
+    arm.control_gripper(-40)
+    time.sleep(3)
+    arm.move_arm(0,-0.376, 0.621) #back to to spot before loading
+    time.sleep(3)
+    arm.home()
+
+def can_load(spot_num):
+    time.sleep(3)
+    arm.move_arm(0.64,0,0.23) #pickup position
+    time.sleep(3)
+    arm.control_gripper(40)
+    time.sleep(3)
+    arm.move_arm(0.012,-0.376, 0.621) #spot before loading
+    time.sleep(3)
+    if spot_num==1:
+        arm.move_arm(0.012,-0.621,0.562) #1st load spot
+        time.sleep(3)
+    elif spot_num==2:
+        arm.move_arm(0.012,-0.521,0.498) #2nd load spot
+        time.sleep(3)
+    elif spot_num==3:
+        arm.move_arm(0.012,-0.462,0.478) #3rd load spot
+        time.sleep(3)
+    arm.control_gripper(-40)
+    time.sleep(3)
+    arm.move_arm(0,-0.376, 0.621) #back to to spot before loading
+    time.sleep(3)
+    arm.home()
+
+
+
 
 def load_container():
     global container
     global mass_binlist
     p_container=0 #value for previous container
     total_weight=0
-    num_containers=0
+    num_containers=0 #to keep count of how many containers get loaded
     counter=True
 
     while counter==True: 
+        dispense_container()
         total_weight += mass_binlist[container][0]
-        if num_containers==0:
-            #then just load it at 1st spot
-            #and update p_container
-            time.sleep(2)
-            arm.move_arm(0.64,0,0.27)
-            time.sleep(2)
-            arm.control_gripper(45)
-            time.sleep(2)
-            arm.move_arm(0,-0.376, 0.621)
-            time.sleep(2)
-            arm.move_arm(0,-0.462,0.478)
-            time.sleep(2)
-            arm.control_gripper(-45)
-            time.sleep(2)
-            arm.move_arm(0,-0.376, 0.621)
-            time.sleep(2)
-            arm.home()
+        if container==2 or container==5:
+            if num_containers==0:
+                #then just load it at 1st spot
+                #and update p_container
+                can_load(1)
 
-            counter=False
-            p_container=container
-            num_containers+=1
+                p_container=container
+                num_containers+=1
 
-        elif num_containers==1:
-            if total_weight>90 or p_container!=container:
-                #stop the loading
-                print('fgf')
-                counter= False
-            else:
-                #load it at spot 2
-                print('dfd')
-        elif num_containers==2:
-            if total_weight>90 or p_container!=container:
-                #stop the loading 
-                print('dsf')
-                counter= False
-            else:   
-                #load at spot 3
-                print('dpop')
+            elif num_containers==1:
+                if total_weight>90 or p_container!=container:
+                    #stop the loading
+                    counter= False
+                else:
+                    #load it at spot 2
+                    can_load(2)
+                    p_container=container
+                    num_containers+=1
+
+            elif num_containers==2:
+                if total_weight>90 or p_container!=container:
+                    #stop the loading 
+                    counter= False
+                else:   
+                    #load at spot 3
+                    can_load(3)
+                    p_container=container
+                    num_containers+=1
+        else:
+            if num_containers==0:
+                #then just load it at 1st spot
+                #and update p_container
+                bottle_load(1)
+                p_container=container
+                num_containers+=1
+
+            elif num_containers==1:
+                if total_weight>90 or p_container!=container:
+                    #stop the loading
+                    counter= False
+                else:
+                    #load it at spot 2
+                    bottle_load(2)
+                    p_container=container
+                    num_containers+=1
+
+            elif num_containers==2:
+                if total_weight>90 or p_container!=container:
+                    #stop the loading 
+                    counter= False
+                else:   
+                    #load at spot 3
+                    bottle_load(3)
+                    p_container=container
+                    num_containers+=1
     
     return None
 
@@ -129,7 +197,7 @@ def drive_Qbot():
         while line_reading == [0, 1]:
             bot.set_wheel_speed([0.1,0])
             line_reading = bot.line_following_sensors()
-            
+
         bot.set_wheel_speed([0.1,0.1])
 
     return None
@@ -143,7 +211,6 @@ def transfer_container():
     global bin4_color
 
     bin = mass_binlist[container][1]
-
     #creates a variable that containes the colour values of the bin
     if bin == 1:
         colour_of_bin = bin1_color
@@ -153,13 +220,13 @@ def transfer_container():
         colour_of_bin = bin3_color
     else:
         colour_of_bin = bin4_color
-    
+
     #stores whether the bot has unloaded or not
     colour_sensing = True
-    
+
     bot.activate_color_sensor()
     bot.activate_line_following_sensor()
-    
+
     #this will run until the correct bin has been sensed
     while colour_sensing:
 
@@ -182,7 +249,7 @@ def transfer_container():
         current_distance = bot.read_ultrasonic_sensor()
 
         #when the bot has reached the dropoff point
-        if 0 < current_distance < 0.5:
+        if 0 < current_distance < 0.075:
             bot.stop()
             ultrasonic_sensing = False
 
@@ -191,13 +258,14 @@ def transfer_container():
     return None
 
 
-    
 def deposit_container():
-    time.sleep(1)
+    time.sleep(3)
     bot.activate_linear_actuator()
-    time.sleep(1)
+    time.sleep(3)
     bot.rotate_hopper(30)
-    
+    time.sleep(3)
+    bot.rotate_hopper(-30)
+   
     return None
 
 def return_home():
@@ -215,7 +283,7 @@ def return_home():
 def main():
 
     while True:
-        dispense_container()
+        #dispense_container()
         load_container()
         transfer_container()
         deposit_container()
@@ -226,8 +294,9 @@ def main():
 main()
 
 #todaywas a sucess!!
+#Jan 26 Refined code
 
-
+"hI i cant push ifdk y"
 #---------------------------------------------------------------------------------
 # STUDENT CODE ENDS
 #---------------------------------------------------------------------------------
@@ -235,4 +304,3 @@ main()
 
     
 
-print ("hi")
