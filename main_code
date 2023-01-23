@@ -51,7 +51,7 @@ else:
 #---------------------------------------------------------------------------------
 container=0
 mass_binlist= [["apple", 0,0],["apple", 9.25,3],["apple", 15,1],["apple", 10,2],["apple", 22.469,4],["apple", 26.649,1],["apple", 29.281,4]]
-
+initial_position = bot.position()
 def dispense_container():
     global container
     global mass_binlist
