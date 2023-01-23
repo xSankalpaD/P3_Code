@@ -271,10 +271,12 @@ def deposit_container():
 def return_home():
 
     bot.activate_line_following_sensor()
-
-    while bot.position() != (1.500001072883606, -1.095026709663216e-05, 0.0007550716400146484):
+    current_position = bot.position()
+    
+    while current_position != (1.500001072883606, -1.095026709663216e-05, 0.0007550716400146484):
 
         drive_Qbot()
+        current_position = bot.position()
 
     bot.deactivate_line_following_sensor()
 
