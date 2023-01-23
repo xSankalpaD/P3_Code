@@ -50,13 +50,15 @@ else:
 # STUDENT CODE BEGINS
 #---------------------------------------------------------------------------------
 container=0
-mass_binlist= [[0,0],[9.25,3],[15,1],[10,2],[22.469,4],[26.649,1],[29.281,4]]
+mass_binlist= [["apple", 0,0],["apple", 9.25,3],["apple", 15,1],["apple", 10,2],["apple", 22.469,4],["apple", 26.649,1],["apple", 29.281,4]]
 
 def dispense_container():
     global container
+    global mass_binlist
     container= random.randint(1,6)
-    table.dispense_container(container, True)
-       
+    container_info= table.dispense_container(container, True)
+    mass_binlist[container]
+    
     return None
 
 def bottle_load(spot_num):
@@ -118,7 +120,7 @@ def load_container():
 
     while counter==True: 
         dispense_container()
-        total_weight += mass_binlist[container][0]
+        total_weight += mass_binlist[container][1]
         if container==2 or container==5:
             if num_containers==0:
                 #then just load it at 1st spot
@@ -175,7 +177,7 @@ def load_container():
                     p_container=container
                     num_containers+=1
     
-    return None
+    return p_container
 
 #code to make the q-bot drive and stay on the track
 def drive_Qbot():
@@ -202,7 +204,7 @@ def drive_Qbot():
 
     return None
         
-def transfer_container():
+def transfer_container(bin_num):
     global mass_binlist
     global container
     global bin1_color
@@ -210,7 +212,7 @@ def transfer_container():
     global bin3_color
     global bin4_color
 
-    bin = mass_binlist[container][1]
+    bin = mass_binlist[bin_num][2]
     #creates a variable that containes the colour values of the bin
     if bin == 1:
         colour_of_bin = bin1_color
@@ -259,24 +261,24 @@ def transfer_container():
 
 
 def deposit_container():
-    time.sleep(3)
-    bot.activate_linear_actuator()
-    time.sleep(3)
-    bot.rotate_hopper(30)
-    time.sleep(3)
-    bot.rotate_hopper(-30)
+    time.sleep(1)
+    bot.activate_stepper_motor()
+    time.sleep(2)
+    bot.rotate_hopper(50)
+    time.sleep(2)
+    bot.rotate_hopper(0)
+    time.sleep(1)
+    bot.deactivate_stepper_motor()
    
     return None
 
 def return_home():
 
     bot.activate_line_following_sensor()
-    current_position = bot.position()
-    
-    while current_position != (1.500001072883606, -1.095026709663216e-05, 0.0007550716400146484):
+
+    while bot.position() != (1.500001072883606, -1.095026709663216e-05, 0.0007550716400146484):
 
         drive_Qbot()
-        current_position = bot.position()
 
     bot.deactivate_line_following_sensor()
 
@@ -286,8 +288,8 @@ def main():
 
     while True:
         #dispense_container()
-        load_container()
-        transfer_container()
+        a= load_container()
+        transfer_container(a)
         deposit_container()
         return_home()
     return None
@@ -295,10 +297,7 @@ def main():
 
 main()
 
-#todaywas a sucess!!
-#Jan 26 Refined code
 
-"hI i cant push ifdk y"
 #---------------------------------------------------------------------------------
 # STUDENT CODE ENDS
 #---------------------------------------------------------------------------------
