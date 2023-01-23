@@ -51,7 +51,7 @@ else:
 #---------------------------------------------------------------------------------
 container=0
 mass_binlist= [[0,0],[9.25,3],[15,1],[10,2],[22.469,4],[26.649,1],[29.281,4]]
-
+initial_position = bot.position()
 def dispense_container():
     global container
     container= random.randint(1,6)
@@ -272,8 +272,8 @@ def return_home():
 
     bot.activate_line_following_sensor()
     current_position = bot.position()
-    
-    while current_position != (1.500001072883606, -1.095026709663216e-05, 0.0007550716400146484):
+
+    while current_position != initial_position:
 
         drive_Qbot()
         current_position = bot.position()
