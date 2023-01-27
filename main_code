@@ -51,7 +51,8 @@ else:
 #---------------------------------------------------------------------------------
 container=0
 mass_binlist= [["apple", 0,0],["apple", 9.25,3],["apple", 15,1],["apple", 10,2],["apple", 22.469,4],["apple", 26.649,1],["apple", 29.281,4]]
-initial_position = bot.position()
+initial_position_x = bot.position()
+
 def dispense_container():
     global container
     global mass_binlist
@@ -107,8 +108,7 @@ def can_load(spot_num):
     time.sleep(3)
     arm.home()
 
-
-
+  
 
 def load_container():
     global container
@@ -117,8 +117,10 @@ def load_container():
     total_weight=0
     num_containers=0 #to keep count of how many containers get loaded
     counter=True
+    counter=0
 
     while counter==True: 
+        #if counter==0: 
         dispense_container()
         total_weight += mass_binlist[container][1]
         if container==2 or container==5:
@@ -149,33 +151,34 @@ def load_container():
                     can_load(3)
                     p_container=container
                     num_containers+=1
-        else:
-            if num_containers==0:
-                #then just load it at 1st spot
-                #and update p_container
-                bottle_load(1)
-                p_container=container
-                num_containers+=1
-
-            elif num_containers==1:
-                if total_weight>90 or p_container!=container:
-                    #stop the loading
-                    counter= False
-                else:
-                    #load it at spot 2
-                    bottle_load(2)
+            else:
+                if num_containers==0:
+                    #then just load it at 1st spot
+                    #and update p_container
+                    bottle_load(1)
                     p_container=container
                     num_containers+=1
 
-            elif num_containers==2:
-                if total_weight>90 or p_container!=container:
-                    #stop the loading 
-                    counter= False
-                else:   
-                    #load at spot 3
-                    bottle_load(3)
-                    p_container=container
-                    num_containers+=1
+                elif num_containers==1:
+                    if total_weight>90 or p_container!=container:
+                        #stop the loading
+                        counter= False
+                    else:
+                        #load it at spot 2
+                        bottle_load(2)
+                        p_container=container
+                        num_containers+=1
+
+                elif num_containers==2:
+                    if total_weight>90 or p_container!=container:
+                        #stop the loading 
+                        counter= False
+                    else:   
+                        #load at spot 3
+                        bottle_load(3)
+                        p_container=container
+                        num_containers+=1
+                 
     
     return p_container
 
@@ -252,6 +255,7 @@ def transfer_container(bin_num):
 
         #when the bot has reached the dropoff point
         if 0 < current_distance < 0.075:
+            time.sleep(1)
             bot.stop()
             ultrasonic_sensing = False
 
@@ -264,23 +268,38 @@ def deposit_container():
     time.sleep(1)
     bot.activate_stepper_motor()
     time.sleep(2)
-    bot.rotate_hopper(50)
+
+    i = 0
+    angle = 10
+    while i < 8:
+        bot.rotate_hopper(angle)
+        angle += 10
+        i += 1
+
     time.sleep(2)
     bot.rotate_hopper(0)
     time.sleep(1)
     bot.deactivate_stepper_motor()
-   
+
     return None
 
 def return_home():
+    #this is separating the x and y values of the original position
+    global initial_position
+    initial_position_x = initial_position[0]
+    initial_position_y = initial_position[1]
 
     bot.activate_line_following_sensor()
+    current_position = bot.position()
 
-    while bot.position() != (1.500001072883606, -1.095026709663216e-05, 0.0007550716400146484):
+    #this loop will run as long as the position is not within a margin of error of 0.05 of original position
+    while not (((initial_position_x - 0.05) < current_position[0] < (initial_position_x + 0.05)) and ((initial_position_y - 0.05) < current_position[1] < (initial_position_y + 0.05))):
 
         drive_Qbot()
+        current_position = bot.position()
 
     bot.deactivate_line_following_sensor()
+    bot.stop()
 
     return None
 
@@ -297,6 +316,7 @@ def main():
 
 main()
 
+ #Jan 26 success!
 
 #---------------------------------------------------------------------------------
 # STUDENT CODE ENDS
