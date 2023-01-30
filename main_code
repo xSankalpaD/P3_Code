@@ -51,14 +51,18 @@ else:
 #---------------------------------------------------------------------------------
 container=0
 mass_binlist= [["apple", 0,0],["apple", 9.25,3],["apple", 15,1],["apple", 10,2],["apple", 22.469,4],["apple", 26.649,1],["apple", 29.281,4]]
-initial_position_x = bot.position()
-
+initial_position = bot.position()
+bin=0
+no_container = True
 def dispense_container():
     global container
     global mass_binlist
+    global bin_value
     container= random.randint(1,6)
     container_info= table.dispense_container(container, True)
     mass_binlist[container]
+    bin_value= mass_binlist[container][2]
+    
     
     return None
 
@@ -113,74 +117,121 @@ def can_load(spot_num):
 def load_container():
     global container
     global mass_binlist
-    p_container=0 #value for previous container
+    global bin
+    global no_container
+    p_bin=0 #value for previous container
     total_weight=0
-    num_containers=0 #to keep count of how many containers get loaded
+    num_container=0 #to keep count of how many containers get loaded
     counter=True
-    counter=0
+
 
     while counter==True: 
-        #if counter==0: 
-        dispense_container()
+        #if counter==0:
+        if no_container:
+        
+            dispense_container()
+            no_container = False
+            
         total_weight += mass_binlist[container][1]
-        if container==2 or container==5:
-            if num_containers==0:
-                #then just load it at 1st spot
-                #and update p_container
+        if bin_value==1:
+            if num_container==0:
                 can_load(1)
-
-                p_container=container
-                num_containers+=1
-
-            elif num_containers==1:
-                if total_weight>90 or p_container!=container:
-                    #stop the loading
-                    counter= False
+                p_bin=bin_value
+                num_container+=1
+                no_container = True
+            elif num_container==1:
+                if total_weight>90 or p_bin!=bin_value:
+                    counter=False
                 else:
-                    #load it at spot 2
                     can_load(2)
-                    p_container=container
-                    num_containers+=1
-
-            elif num_containers==2:
-                if total_weight>90 or p_container!=container:
-                    #stop the loading 
-                    counter= False
-                else:   
-                    #load at spot 3
+                    p_bin=bin_value
+                    num_container+=1
+                    no_container = True
+            elif num_container==2:
+                if total_weight>90 or p_bin!=bin_value:
+                    counter=False
+                else:
                     can_load(3)
-                    p_container=container
-                    num_containers+=1
-            else:
-                if num_containers==0:
-                    #then just load it at 1st spot
-                    #and update p_container
-                    bottle_load(1)
-                    p_container=container
-                    num_containers+=1
+                    p_bin=bin_value
+                    num_container+=1
+                    no_container = True
+        elif bin_value==2:
+            if num_container==0:
+                bottle_load(1)
+                p_bin=bin_value
+                num_container+=1
+                no_container = True
 
-                elif num_containers==1:
-                    if total_weight>90 or p_container!=container:
-                        #stop the loading
-                        counter= False
-                    else:
-                        #load it at spot 2
-                        bottle_load(2)
-                        p_container=container
-                        num_containers+=1
+            elif num_container==1:
+                if total_weight>90 or p_bin!=bin_value:
+                    counter=False
+                else:
+                    bottle_load(2)
+                    p_bin=bin_value
+                    num_container = num_container +1
+                    no_container = True
+        
 
-                elif num_containers==2:
-                    if total_weight>90 or p_container!=container:
-                        #stop the loading 
-                        counter= False
-                    else:   
-                        #load at spot 3
-                        bottle_load(3)
-                        p_container=container
-                        num_containers+=1
+            elif num_container==2:
+                if total_weight>90 or p_bin!=bin_value:
+                    counter=False
+                else:
+                    bottle_load(3)
+                    p_bin=bin_value
+                    num_container+=1
+                    no_container = True
+
+        elif bin_value==3:
+            if num_container==0:
+                bottle_load(1)
+                p_bin=bin_value
+                num_container+=1
+                no_container = True
+            elif num_container==1:
+                if total_weight>90 or p_bin!=bin_value:
+                    counter=False
+                else:
+                    bottle_load(2)
+                    p_bin=bin_value
+                    num_container+=1
+                    no_container = True
+            elif num_container==2:
+                if total_weight>90 or p_bin!=bin_value:
+                    counter=False
+                else:
+                    bottle_load(3)
+                    p_bin=bin_value
+                    num_container+=1
+                    no_container = True
+
+        elif bin_value==4:
+            if num_container==0:
+                bottle_load(1)
+                p_bin=bin_value
+                num_container+=1
+                no_container = True
+            elif num_container==1:
+                if total_weight>90 or p_bin!=bin_value:
+                    counter=False
+                else:
+                    bottle_load(2)
+                    p_bin=bin_value
+                    num_container+=1
+                    no_container = True
+            elif num_container==2:
+                if total_weight>90 or p_bin!=bin_value:
+                    counter=False
+                else:
+                    bottle_load(3)
+                    p_bin=bin_value
+                    num_container+=1
+                    no_container = True
+
+          
+            
                  
     
-    return p_container
+    return p_bin, no_container
 
 #code to make the q-bot drive and stay on the track
 def drive_Qbot():
@@ -215,7 +266,7 @@ def transfer_container(bin_num):
     global bin3_color
     global bin4_color
 
-    bin = mass_binlist[bin_num][2]
+    bin = bin_num
     #creates a variable that containes the colour values of the bin
     if bin == 1:
         colour_of_bin = bin1_color
@@ -304,10 +355,10 @@ def return_home():
     return None
 
 def main():
-
+    global no_container
     while True:
         #dispense_container()
-        a= load_container()
+        a, no_container= load_container()
         transfer_container(a)
         deposit_container()
         return_home()
