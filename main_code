@@ -52,16 +52,18 @@ else:
 container=0
 mass_binlist= [["apple", 0,0],["apple", 9.25,3],["apple", 15,1],["apple", 10,2],["apple", 22.469,4],["apple", 26.649,1],["apple", 29.281,4]]
 initial_position = bot.position()
-bin=0
+bin_value=0
 no_container = True
+bin_list= [0,3,1,2,4,1,4]
 def dispense_container():
     global container
     global mass_binlist
     global bin_value
+    global bin_list
     container= random.randint(1,6)
     container_info= table.dispense_container(container, True)
-    mass_binlist[container]
-    bin_value= mass_binlist[container][2]
+    mass_binlist[container] = container_info
+    bin_value= bin_list[container]
     
     
     return None
@@ -117,7 +119,7 @@ def can_load(spot_num):
 def load_container():
     global container
     global mass_binlist
-    global bin
+    global bin_value
     global no_container
     p_bin=0 #value for previous container
     total_weight=0
@@ -155,6 +157,9 @@ def load_container():
                     p_bin=bin_value
                     num_container+=1
                     no_container = True
+            elif num_container == 3:
+                counter = False
+                
         elif bin_value==2:
             if num_container==0:
                 bottle_load(1)
@@ -180,6 +185,8 @@ def load_container():
                     p_bin=bin_value
                     num_container+=1
                     no_container = True
+            elif num_container == 3:
+                counter = False
 
         elif bin_value==3:
             if num_container==0:
@@ -203,6 +210,8 @@ def load_container():
                     p_bin=bin_value
                     num_container+=1
                     no_container = True
+            elif num_container == 3:
+                counter = False
 
         elif bin_value==4:
             if num_container==0:
@@ -226,10 +235,8 @@ def load_container():
                     p_bin=bin_value
                     num_container+=1
                     no_container = True
-
-          
-            
-                 
+            elif num_container == 3:
+                counter = False         
     
     return p_bin, no_container
 
@@ -305,7 +312,7 @@ def transfer_container(bin_num):
         current_distance = bot.read_ultrasonic_sensor()
 
         #when the bot has reached the dropoff point
-        if 0 < current_distance < 0.075:
+        if 0 < current_distance < 0.09:
             time.sleep(1)
             bot.stop()
             ultrasonic_sensing = False
