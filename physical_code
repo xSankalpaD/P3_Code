@@ -26,6 +26,7 @@ def deposit():
 def main():
     while True:
         try:
+            #blue light
             while not bot.read_color_sensor()[0][2]>0.6:
                 line_following()
             break
