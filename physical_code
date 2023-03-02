@@ -1,0 +1,31 @@
+bot.activate_line_following_sensor()
+bot.activate_color_sensor()
+bot.activate_ultrasonic_sensor()
+speed=0.05
+
+
+while True:
+    try:
+        detected_color= bot.read_color_sensor()[0]
+        print(detected_color)
+        if detected_color[0]>0.6:
+            break
+
+    except:
+        pass
+    
+    left, right= bot.line_following_sensors()
+    print (left,right)
+
+    if left== right==1:
+
+        bot.set_wheel_speed([speed,speed])
+    elif left ==1 and right==0:
+
+        bot.set_wheel_speed([speed0.5, speed])
+
+    elif left==0 and right==1:
+
+        bot.set_wheeL_speed([speed, speed0.5])
+
+bot.stop()
