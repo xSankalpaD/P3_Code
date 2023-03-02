@@ -1,31 +1,49 @@
+import time
 bot.activate_line_following_sensor()
+time.sleep(1)
 bot.activate_color_sensor()
-bot.activate_ultrasonic_sensor()
-speed=0.05
+time.sleep(1)
+speed=0.06
 
 
-while True:
-    try:
-        detected_color= bot.read_color_sensor()[0]
-        print(detected_color)
-        if detected_color[0]>0.6:
-            break
-
-    except:
-        pass
-    
+def line_following():
+    global speed
     left, right= bot.line_following_sensors()
-    print (left,right)
+    if left==1 and right==1:
+        bot.set_wheel_speed([speed,speed]) 
+    elif right<1:
+        bot.set_wheel_speed([0.02,speed])
+    elif left<1:
+        bot.set_wheel_speed([speed,0.02])
 
-    if left== right==1:
+def deposit():
+    bot.activate_linear_actuator()
+    bot.linear_actuator_out(5)
+    time.sleep(2)
+    bot.linear_actuator_in(5)
+    bot.deactivate_linear_actuator()
 
-        bot.set_wheel_speed([speed,speed])
-    elif left ==1 and right==0:
+def main():
+    while True:
+        try:
+            while not bot.read_color_sensor()[0][2]>0.6:
+                line_following()
+            break
+         
+        except:
+            continue
+  
+    bot.stop()
+    deposit()
+    a= time.time()
+    
+    travel=30
 
-        bot.set_wheel_speed([speed0.5, speed])
-
-    elif left==0 and right==1:
-
-        bot.set_wheeL_speed([speed, speed0.5])
-
-bot.stop()
+    while time.time()< a+travel:
+        line_following()
+    bot.stop
+    
+    
+    bot.deactivate_line_following_sensor()
+    time.sleep(1)
+    bot.deactivate_color_sensor()
