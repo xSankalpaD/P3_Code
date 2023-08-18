@@ -47,9 +47,7 @@ else:
     table = servo_table(ip_address,QLabs,table_configuration,hardware)
     arm = qarm(project_identifier,ip_address,QLabs,hardware)
     bot = qbot(0.1,ip_address,QLabs,project_identifier,hardware)
-#--------------------------------------------------------------------------------
-# STUDENT CODE BEGINS
-#---------------------------------------------------------------------------------
+
 
 #global value to hold contianer dispensed
 container=0
