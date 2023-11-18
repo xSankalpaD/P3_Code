@@ -11,7 +11,7 @@ drop_tube_angle = 180 # enter the value in degrees for the drop tube. clockwise 
 # BIN CONFIGURATION
 # Configuration for the colors for the bins and the lines leading to those bins.
 # Note: The line leading up to the bin will be the same color as the bin 
-
+#check
 bin1_offset = 0.15 # offset in meters
 bin1_color = [1, 0, 0] # e.g. [1,0,0] for red
 bin1_metallic = False
